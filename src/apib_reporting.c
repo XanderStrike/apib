@@ -428,6 +428,13 @@ static double getMaxCpu(CPUSamples* s) {
 void ReportResults(BenchmarkResults* r) {
   pthread_mutex_lock(&latch);
 
+  FILE * ms;
+  ms = fopen ("rawlatencies.txt","a");
+  for (int i=0; i < latenciesCount; i++) {
+    fprintf(ms, "%.3lf\n", apib_Milliseconds(latencies[i]));
+  }
+  fclose(ms);
+
   qsort(latencies, latenciesCount, sizeof(long long), compareLLongs);
   r->completedRequests = completedRequests;
   r->successfulRequests = successfulRequests;
@@ -523,7 +530,7 @@ void PrintShortResults(FILE* out, const char* runName, int threads,
           runName, r.averageThroughput, r.averageLatency, threads, connections,
           r.elapsedTime, r.completedRequests, r.successfulRequests,
           r.unsuccessfulRequests, r.connectionsOpened, r.latencies[0],
-          r.latencies[100], r.latencies[50], r.latencies[90], r.latencies[98],
+          r.latencies[100], r.latencies[68], r.latencies[90], r.latencies[98],
           r.latencies[99], r.latencyStdDev,
           getAverageCpu(&clientSamples) * 100.0,
           getAverageCpu(&remoteSamples) * 100.0,
@@ -536,7 +543,7 @@ void PrintReportingHeader(FILE* out) {
   fprintf(out,
           "Name,Throughput,Avg. Latency,Threads,Connections,Duration,"
           "Completed,Successful,Errors,Sockets,"
-          "Min. latency,Max. latency,50%% Latency,90%% Latency,"
+          "Min. latency,Max. latency,68%% Latency,90%% Latency,"
           "98%% Latency,99%% Latency,Latency Std Dev,Avg Client CPU,"
           "Avg Server CPU,Avg Server 2 CPU,"
           "Client Mem Usage,Server Mem,Server 2 Mem,"
